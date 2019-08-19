@@ -2,6 +2,7 @@
 #include<cmath>
 #include<fstream> //for ifstream, ofstream
 #include<vector> // for vector
+#include<algorithm> // min_element
 
 using namespace std;
 
@@ -103,6 +104,24 @@ float flux1(float stn[5]) //calculate the right-hand side
   return fr;
 }
 
+float eno(float stn[5]) //calculate the right-hand side
+{
+  float fr;
+     
+  float p1, p2, p3;
+
+  p1 = (3.0/8.0)*stn[0]+(-5.0/4.0)*stn[1]+(15.0/8.0)*stn[2];
+  p2 = (-1.0/8.0)*stn[1]+(3.0/4.0)*stn[2]+(3.0/8.0)*stn[3];
+  p3 = (3.0/8.0)*stn[2]+(3.0/4.0)*stn[3]+(-1.0/8.0)*stn[4];
+
+  //fr = w1*p1 + w2*p2 + w3*p3; // flux at xi+1/2
+
+  fr = min(abs(p1),abs(p2));
+  fr = min(abs(p3),abs(fr));
+  
+  return fr;
+}
+
 int main()
 {
 
@@ -121,8 +140,12 @@ int main()
   fx.resize(imax);
   for(i=0; i<imax; ++i){
     x[i] = i*dx;
-    fx[i] = 0.0;
+        fx[i] = 0.0;
     if(x[i]>=0.25*pi and x[i]<=0.75*pi) fx[i]=1.0; //function with jump
+
+    //fx[i] = 1.0;
+    //if(x[i]>=0.5*pi) fx[i]=0.0; //function with jump
+    
   }
   fp.open("ref.csv",ios::out);
   fp<<"x, fx\n";
@@ -147,7 +170,8 @@ int main()
 
     xg = x[i] + 0.5*dx;
     //fr = flux2(stn);
-    fr = flux1(stn);
+    //fr = flux1(stn);
+    fr = eno(stn);
 
     xp.push_back(xg);
     fint.push_back(fr);
@@ -168,7 +192,8 @@ int main()
 
     xg = x[i] - 0.5*dx;
     //fr = flux2(stn);
-    fr = flux1(stn);
+    //fr = flux1(stn);
+    fr = eno(stn);
 
     xl.push_back(xg);
     fl.push_back(fr);
@@ -208,8 +233,9 @@ int main()
     xg = x[i] + 0.5*dx; // exact position
 
     //fleft = flux2(stn);
-    fleft = flux1(stn);
-
+    //fleft = flux1(stn);
+    fleft = eno(stn);
+    
     stn[0] = fx[i+3];
     stn[1] = fx[i+2];
     stn[2] = fx[i+1]; // interface [i,i+1]
@@ -217,7 +243,8 @@ int main()
     stn[4] = fx[i-1];
 
     //fright = flux2(stn);
-    fright = flux1(stn);
+    //fright = flux1(stn);
+    fright = eno(stn);
 
     ave = 0.5*(fleft + fright);
 
