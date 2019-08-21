@@ -31,12 +31,7 @@ float flux2(float stn[5]) //calculate the right-hand side
   float b3 = (13.0/12.0)*(stn[2]-2.0*stn[3]+stn[4])*(stn[2]-2.0*stn[3]+stn[4])
     +0.25*(3.0*stn[2]-4.0*stn[3]+stn[4])*(3.0*stn[2]-4.0*stn[3]+stn[4]);
   
-  /* 
- float wtilde1 = gamma1/((1.0e-6 + b1)+(1.0e-6 + b2)+(1.0e-6 + b3) );
- float wtilde2 = gamma2/((1.0e-6 + b1)+(1.0e-6 + b2)+(1.0e-6 + b3) );
- float wtilde3 = gamma3/((1.0e-6 + b1)+(1.0e-6 + b2)+(1.0e-6 + b3) );
-  */
-  
+    
  float wtilde1 = gamma1/( (1.0e-6 + b1)*(1.0e-6 + b1) );
  float wtilde2 = gamma2/( (1.0e-6 + b2)*(1.0e-6 + b2) );
  float wtilde3 = gamma3/( (1.0e-6 + b3)*(1.0e-6 + b3) );
@@ -98,9 +93,8 @@ float flux1(float stn[5]) //calculate the right-hand side
  double w2 = wtilde2/(wtilde1+wtilde2+wtilde3);
  double w3 = wtilde3/(wtilde1+wtilde2+wtilde3);
 
- double eps= 1.0e-6;
- 
- cout<<wtilde1<<" "<<wtilde2<<" "<<wtilde3<<" "<<eps <<endl;
+ // double eps= 1.0e-6;
+ // cout<<wtilde1<<" "<<wtilde2<<" "<<wtilde3<<" "<<eps <<endl;
 
   fr = w1*p1 + w2*p2 + w3*p3; // flux at xi+1/2
  
@@ -143,11 +137,11 @@ int main()
   fx.resize(imax);
   for(i=0; i<imax; ++i){
     x[i] = i*dx;
-    //     fx[i] = 0.0;
-    //if(x[i]>=0.25*pi and x[i]<=0.75*pi) fx[i]=1.0; //function with jump
+         fx[i] = 0.0;
+    if(x[i]>=0.25*pi and x[i]<=0.75*pi) fx[i]=1.0; //function with jump
 
-    fx[i] = 1.0;
-    if(x[i]>=0.5*pi) fx[i]=0.0; //function with jump
+    //  fx[i] = 1.0;
+    //if(x[i]>=0.5*pi) fx[i]=0.0; //function with jump
     
   }
   fp.open("ref.csv",ios::out);
@@ -172,8 +166,8 @@ int main()
     stn[4] = fx[i+2];
 
     xg = x[i] + 0.5*dx;
-    //fr = flux2(stn);
-    fr = flux1(stn);
+    fr = flux2(stn);
+    //fr = flux1(stn);
     //fr = eno(stn);
 
     xp.push_back(xg);
@@ -194,8 +188,8 @@ int main()
     stn[4] = fx[i-2];
 
     xg = x[i] - 0.5*dx;
-    //fr = flux2(stn);
-    fr = flux1(stn);
+    fr = flux2(stn);
+    //fr = flux1(stn);
     //fr = eno(stn);
 
     xl.push_back(xg);
@@ -235,8 +229,8 @@ int main()
 
     xg = x[i] + 0.5*dx; // exact position
 
-    //fleft = flux2(stn);
-    fleft = flux1(stn);
+    fleft = flux2(stn);
+    //fleft = flux1(stn);
     //fleft = eno(stn);
     
     stn[0] = fx[i+3];
@@ -245,8 +239,8 @@ int main()
     stn[3] = fx[i];
     stn[4] = fx[i-1];
 
-    //fright = flux2(stn);
-    fright = flux1(stn);
+    fright = flux2(stn);
+    //fright = flux1(stn);
     //fright = eno(stn);
 
     ave = 0.5*(fleft + fright);
