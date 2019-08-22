@@ -52,9 +52,9 @@ float flux(float stn[5]) //calculate the right-hand side
 	       +4.0*stn[4]*stn[4]);
 
   
- float wtilde1 = gamma1/(1.0e-6 + b1)*(1.0e-6 + b1);
- float wtilde2 = gamma2/(1.0e-6 + b2)*(1.0e-6 + b2);
- float wtilde3 = gamma3/(1.0e-6 + b3)*(1.0e-6 + b3);
+  float wtilde1 = gamma1/((1.0e-6 + b1)*(1.0e-6 + b1));
+  float wtilde2 = gamma2/((1.0e-6 + b2)*(1.0e-6 + b2));
+  float wtilde3 = gamma3/((1.0e-6 + b3)*(1.0e-6 + b3));
   
 
  float w1 = wtilde1/(wtilde1+wtilde2+wtilde3);
@@ -166,31 +166,109 @@ int main()
    swap(u,u1);
    */
 
-   for(int i=1; i<imax-1; ++i){
+   float stn[5];
+   float fl, fr;
+   
+   for(int i=3; i<imax-3; ++i){
    uin = u[i];
    alpha=0.25f;
-   source = -c*0.5*(u[i+1]-u[i-1])/dx;
+
+   stn[0] = u[i-2];
+   stn[1] = u[i-1];
+   stn[2] = u[i];
+   stn[3] = u[i+1];
+   stn[4] = u[i+2];
+
+   fr = flux(stn);
+
+   stn[0] = u[i-3];
+   stn[1] = u[i-2];
+   stn[2] = u[i-1];
+   stn[3] = u[i];
+   stn[4] = u[i+1];
+
+   fl = flux(stn);
+    
+   source = -c*(fr-fl)/dx;
+
    utemp = rkstep(uin,dt,alpha,source);
    u1[i] = utemp;
    } //first step
-   for(int i=1; i<imax-1; ++i){
+
+   for(int i=3; i<imax-3; ++i){
    uin = u[i];
    alpha=0.333333333f;
-   source = -c*0.5*(u1[i+1]-u1[i-1])/dx;
+
+   stn[0] = u1[i-2];
+   stn[1] = u1[i-1];
+   stn[2] = u1[i];
+   stn[3] = u1[i+1];
+   stn[4] = u1[i+2];
+
+   fr = flux(stn);
+
+   stn[0] = u1[i-3];
+   stn[1] = u1[i-2];
+   stn[2] = u1[i-1];
+   stn[3] = u1[i];
+   stn[4] = u1[i+1];
+
+   fl = flux(stn);
+   
+   source = -c*(fr-fl)/dx;
+
    utemp = rkstep(uin,dt,alpha,source);
    u2[i] = utemp;
    } //second step
-   for(int i=1; i<imax-1; ++i){
+
+   for(int i=3; i<imax-3; ++i){
    uin = u[i];
    alpha=0.5f;
-   source = -c*0.5*(u2[i+1]-u2[i-1])/dx;
+
+   stn[0] = u2[i-2];
+   stn[1] = u2[i-1];
+   stn[2] = u2[i];
+   stn[3] = u2[i+1];
+   stn[4] = u2[i+2];
+
+   fr = flux(stn);
+
+   stn[0] = u2[i-3];
+   stn[1] = u2[i-2];
+   stn[2] = u2[i-1];
+   stn[3] = u2[i];
+   stn[4] = u2[i+1];
+
+   fl = flux(stn);
+   
+   source = -c*(fr-fl)/dx;
+
    utemp = rkstep(uin,dt,alpha,source);
    u1[i] = utemp;
    } //third step
-   for(int i=1; i<imax-1; ++i){
+
+   for(int i=3; i<imax-3; ++i){
    uin = u[i];
    alpha=1.0f;
-   source = -c*0.5*(u1[i+1]-u1[i-1])/dx;
+
+   stn[0] = u1[i-2];
+   stn[1] = u1[i-1];
+   stn[2] = u1[i];
+   stn[3] = u1[i+1];
+   stn[4] = u1[i+2];
+
+   fr = flux(stn);
+
+   stn[0] = u1[i-3];
+   stn[1] = u1[i-2];
+   stn[2] = u1[i-1];
+   stn[3] = u1[i];
+   stn[4] = u1[i+1];
+
+   fl = flux(stn);
+
+   source = -c*(fr-fl)/dx;
+
    utemp = rkstep(uin,dt,alpha,source);
    u2[i] = utemp;
    } //forth step
