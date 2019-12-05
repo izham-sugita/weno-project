@@ -6,6 +6,7 @@
 
 using namespace std;
 
+//flux2 is a WENO reconstruction procedure.
 float flux2(float stn[5]) //calculate the right-hand side
 {
   float fr;
