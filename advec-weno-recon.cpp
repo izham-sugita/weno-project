@@ -3,6 +3,10 @@
 #include<fstream> //for file I/O
 #include<cmath> // math function
 #include<vector>
+#include<string>
+
+#include<sstream>
+#include<iomanip>
 
 using namespace std;
 
@@ -21,6 +25,28 @@ float rk1(float u, float dt, float rhs)
 
 template<typename T>int sign(T val){
   return (T(0) < val) - (val < T(0));
+}
+
+/*File output*/
+void output(int steps, vector<float> x, vector<float> fx)
+{
+  ofstream fp;
+  stringstream buf;
+  string filenumber;
+
+  buf<<setfill('0');
+  filenumber = to_string(steps);
+  buf<<setw(5)<<filenumber;
+
+  string filename="./data/f"+buf.str()+".csv";
+  fp.open(filename, ios::out);
+  fp<<"x, fx\n";
+  for(int i=0; i<x.size(); ++i){
+    fp<<x[i]<<", "
+      <<fx[i]<<"\n";
+  }
+  fp.close();
+  buf.str(string()); //clear buffer
 }
 
 //flux2 is a WENO reconstruction procedure.
@@ -64,6 +90,32 @@ float weno_recon(float stn[5]) //calculate the right-hand side
   return fr;
 }
 
+float cdweno2(float stn[2]){
+  float dfdx;
+  float gamma1 = 0.5;
+  float gamma2 = 0.5;
+
+  float p1 = stn[0];
+  float p2 = stn[1];
+
+  float eps = 1.0e-6;
+
+  float b1 = stn[0]*stn[0];
+  float b2 = stn[1]*stn[1];
+
+  float wtilde1 = gamma1/( (eps + b1)*(eps + b1) );
+  float wtilde2 = gamma2/( (eps + b2)*(eps + b2) );
+
+  float w1 = wtilde1/(wtilde1 + wtilde2);
+  float w2 = wtilde2/(wtilde1 + wtilde2);
+  
+  //reconstructed dfdx
+  dfdx = w1*p1 + w2*p2;
+
+  return dfdx;
+}
+
+
 
 int main()
 {
@@ -90,10 +142,11 @@ int main()
   uex.resize(imax);
   u.resize(imax);
   uinit.resize(imax);
-
-  vector<float> ccyclic;
-  ccyclic.resize(imax);
   
+  vector<float> ccyclic;
+  vector<float> xg;
+  ccyclic.resize(imax);
+  xg.resize(imax);
   
   for(int i=0; i<imax; ++i){
     u[i] = 0.0;
@@ -101,6 +154,9 @@ int main()
     if(i*dx>=5.0f && i*dx<=7.0f){
       u[i] = 1.0;
     }
+
+    xg[i] = i*dx;
+    
   }  
 
   
@@ -171,7 +227,7 @@ int main()
      ccyclic[i] = sign(sin(pi*dt*iter))*c;
    }
 
-   if(iter%10 == 0) cout<<"cs="<<ccyclic[imax/2]<<endl;
+   //if(iter%10 == 0) cout<<"cs="<<ccyclic[imax/2]<<endl;
    
    float stn[5];
    float dfdx;
@@ -233,8 +289,9 @@ int main()
    
    swap(u,u1);
    
-   
-     iter +=1;
+   output(iter, xg, u);
+ 
+   iter +=1;
      
  }while(iter<itermax+1);
 
