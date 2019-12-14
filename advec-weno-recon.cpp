@@ -90,28 +90,32 @@ float weno_recon(float stn[5]) //calculate the right-hand side
   return fr;
 }
 
-float cdweno2(float stn[2]){
+float cdweno2(float stn[3]){
   float dfdx;
   float gamma1 = 0.5;
-  float gamma2 = 0.5;
+  float gamma2 =  0.5; 
+  
 
   float p1 = stn[0];
   float p2 = stn[1];
+  
 
   float eps = 1.0e-6;
 
   float b1 = stn[0]*stn[0];
   float b2 = stn[1]*stn[1];
+  
 
   float wtilde1 = gamma1/( (eps + b1)*(eps + b1) );
   float wtilde2 = gamma2/( (eps + b2)*(eps + b2) );
+  
 
   float w1 = wtilde1/(wtilde1 + wtilde2);
   float w2 = wtilde2/(wtilde1 + wtilde2);
-  
+    
   //reconstructed dfdx
   dfdx = w1*p1 + w2*p2;
-
+    
   return dfdx;
 }
 
@@ -130,7 +134,7 @@ int main()
   cout<<"Enter imax "<<endl;
   cin>>imax;
 
-  dx = 12.0/(imax-1);
+  dx = 10.0/(imax-1);
   cout<<"Enter dt (dx= "<<dx<<" ) "<<endl;;
   cin>>dt;
 
@@ -151,7 +155,7 @@ int main()
   for(int i=0; i<imax; ++i){
     u[i] = 0.0;
     uex[i] = 0.0;
-    if(i*dx>=5.0f && i*dx<=7.0f){
+    if(i*dx>=4.0f && i*dx<=6.0f){
       u[i] = 1.0;
     }
 
@@ -230,19 +234,28 @@ int main()
    //if(iter%10 == 0) cout<<"cs="<<ccyclic[imax/2]<<endl;
    
    float stn[5];
+
    float dfdx;
       
    for(int i=3; i<imax-3; ++i){
    uin = u[i];
 
+   // WENO4
+   /*
    stn[abs(4*shift-0)] = c*( u[i-2+shift] - u[i-3+shift] )/dx;
    stn[abs(4*shift-1)] = c*( u[i-1+shift] - u[i-2+shift] )/dx;
    stn[abs(4*shift-2)] = c*( u[i+shift] - u[i-1+shift] )/dx; // space I_[i] 
    stn[abs(4*shift-3)] = c*( u[i+1+shift] - u[i+shift] )/dx;
    stn[abs(4*shift-4)] = c*( u[i+2+shift] - u[i+1+shift] )/dx;
-
    dfdx = -weno_recon(stn); //reconstructed derivative
+   */
 
+   //CD-WENO2
+   stn[0] = 0.5*c*( u[i+1] - u[i-1] )/dx ;
+   stn[1] = c*( u[i] - u[i-1] )/dx ;
+
+   dfdx = -cdweno2(stn);
+         
    utemp = rk1(uin, dt, dfdx);
 
    u1[i] = utemp;
@@ -251,14 +264,23 @@ int main()
 
    for(int i=3; i<imax-3; ++i){
 
+     /*
      stn[abs(4*shift-0)] = c*( u1[i-2+shift] - u1[i-3+shift] )/dx;
      stn[abs(4*shift-1)] = c*( u1[i-1+shift] - u1[i-2+shift] )/dx;
      stn[abs(4*shift-2)] = c*( u1[i+shift] - u1[i-1+shift] )/dx; 
      stn[abs(4*shift-3)] = c*( u1[i+1+shift] - u1[i+shift] )/dx;
      stn[abs(4*shift-4)] = c*( u1[i+2+shift] - u1[i+1+shift] )/dx;
-
    dfdx = -weno_recon(stn); //reconstructed derivative
-    
+     */
+
+
+   //CD-WENO2
+   stn[0] = 0.5*c*( u1[i+1] - u1[i-1] )/dx ;
+   stn[1] = c*( u1[i] - u1[i-1] )/dx ;
+   
+   dfdx = -cdweno2(stn);
+   
+      
    uin = u[i];
    u_1 = u1[i];
    
@@ -270,14 +292,22 @@ int main()
 
    for(int i=3; i<imax-3; ++i){
 
+     /*
      stn[abs(4*shift-0)] = c*( u2[i-2+shift] - u2[i-3+shift] )/dx;
      stn[abs(4*shift-1)] = c*( u2[i-1+shift] - u2[i-2+shift] )/dx;
      stn[abs(4*shift-2)] = c*( u2[i+shift] - u2[i-1+shift] )/dx; 
      stn[abs(4*shift-3)] = c*( u2[i+1+shift] - u2[i+shift] )/dx;
      stn[abs(4*shift-4)] = c*( u2[i+2+shift] - u2[i+1+shift] )/dx;
-
    dfdx = -weno_recon(stn); //reconstructed derivative
+     */
 
+     //CD-WENO2
+     
+   stn[0] = 0.5*c*( u2[i+1] - u2[i-1] )/dx ;
+   stn[1] = c*( u2[i] - u2[i-1] )/dx ;
+
+   dfdx = -cdweno2(stn);
+   
    uin = u[i];
    u_1 = u2[i];
 
@@ -296,7 +326,7 @@ int main()
  }while(iter<itermax+1);
 
  //WENO output
- fp.open("weno-ssprk-recon.csv");
+ fp.open("cd-weno-ssprk-recon.csv");
  fp<<"x, fx\n";
  for(int i=0; i<imax; ++i){
    fp<<i*dx<<",\t"<<u[i]<<"\n";

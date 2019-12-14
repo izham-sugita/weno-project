@@ -99,7 +99,7 @@ int main()
   u.resize(imax);
   uinit.resize(imax);
 
-  /*
+  
   for(int i=0; i<imax; ++i){
     u[i] = 0.0;
     uex[i] = 0.0;
@@ -107,8 +107,9 @@ int main()
       u[i] = 1.0;
     }
   }  
-  */
+  
 
+  /*
   for(int i=0; i<imax; ++i){
     u[i] = 1.0;
     if(i*dx>1.0f){
@@ -117,6 +118,7 @@ int main()
 
     uex[i] = u[i];
   }
+  */
   
   for(int i=0; i<imax; ++i) uinit[i] = u[i];
   
