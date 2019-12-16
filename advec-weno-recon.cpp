@@ -241,21 +241,13 @@ int main()
    uin = u[i];
 
    // WENO4
-   /*
    stn[abs(4*shift-0)] = c*( u[i-2+shift] - u[i-3+shift] )/dx;
    stn[abs(4*shift-1)] = c*( u[i-1+shift] - u[i-2+shift] )/dx;
    stn[abs(4*shift-2)] = c*( u[i+shift] - u[i-1+shift] )/dx; // space I_[i] 
    stn[abs(4*shift-3)] = c*( u[i+1+shift] - u[i+shift] )/dx;
    stn[abs(4*shift-4)] = c*( u[i+2+shift] - u[i+1+shift] )/dx;
    dfdx = -weno_recon(stn); //reconstructed derivative
-   */
 
-   //CD-WENO2
-   stn[0] = 0.5*c*( u[i+1] - u[i-1] )/dx ;
-   stn[1] = c*( u[i] - u[i-1] )/dx ;
-
-   dfdx = -cdweno2(stn);
-         
    utemp = rk1(uin, dt, dfdx);
 
    u1[i] = utemp;
@@ -264,22 +256,12 @@ int main()
 
    for(int i=3; i<imax-3; ++i){
 
-     /*
      stn[abs(4*shift-0)] = c*( u1[i-2+shift] - u1[i-3+shift] )/dx;
      stn[abs(4*shift-1)] = c*( u1[i-1+shift] - u1[i-2+shift] )/dx;
      stn[abs(4*shift-2)] = c*( u1[i+shift] - u1[i-1+shift] )/dx; 
      stn[abs(4*shift-3)] = c*( u1[i+1+shift] - u1[i+shift] )/dx;
      stn[abs(4*shift-4)] = c*( u1[i+2+shift] - u1[i+1+shift] )/dx;
    dfdx = -weno_recon(stn); //reconstructed derivative
-     */
-
-
-   //CD-WENO2
-   stn[0] = 0.5*c*( u1[i+1] - u1[i-1] )/dx ;
-   stn[1] = c*( u1[i] - u1[i-1] )/dx ;
-   
-   dfdx = -cdweno2(stn);
-   
       
    uin = u[i];
    u_1 = u1[i];
@@ -292,22 +274,13 @@ int main()
 
    for(int i=3; i<imax-3; ++i){
 
-     /*
      stn[abs(4*shift-0)] = c*( u2[i-2+shift] - u2[i-3+shift] )/dx;
      stn[abs(4*shift-1)] = c*( u2[i-1+shift] - u2[i-2+shift] )/dx;
      stn[abs(4*shift-2)] = c*( u2[i+shift] - u2[i-1+shift] )/dx; 
      stn[abs(4*shift-3)] = c*( u2[i+1+shift] - u2[i+shift] )/dx;
      stn[abs(4*shift-4)] = c*( u2[i+2+shift] - u2[i+1+shift] )/dx;
    dfdx = -weno_recon(stn); //reconstructed derivative
-     */
-
-     //CD-WENO2
-     
-   stn[0] = 0.5*c*( u2[i+1] - u2[i-1] )/dx ;
-   stn[1] = c*( u2[i] - u2[i-1] )/dx ;
-
-   dfdx = -cdweno2(stn);
-   
+      
    uin = u[i];
    u_1 = u2[i];
 
