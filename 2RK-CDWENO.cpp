@@ -12,6 +12,8 @@ using namespace std;
 /*function prototype*/
 void output(int, vector<float>, vector<float> );
 float rkstep(float, float, float,  float);
+float cdweno2(float stn[3]);
+
 
 void init(int imax, float dx,
 	  vector<float> &u, vector<float> &xg)
@@ -71,6 +73,8 @@ int main()
   */
 
   float uin, dfdx, utemp;
+  float stn[3];
+  float eps = 1.0e-6;
   
   /*Main loop*/
   iter = 0;
@@ -78,7 +82,26 @@ int main()
 
     /*1st RK step*/
     for(i=1; i<imax-1; ++i){
-      dfdx = -0.5*c*(u[i+1] - u[i-1])/dx;
+
+      
+      stn[0] = ( c*(u[i+1] - u[i])/dx );
+      stn[1] = ( c*(u[i] - u[i-1])/dx  );
+      
+      //dfdx = -cdweno2(stn);
+      
+      
+      
+      float b1 = (u[i] - u[i-1])*(u[i] - u[i-1]);
+      float b2 = (u[i+1] - u[i])*(u[i+1] - u[i]);
+      float wtilde1 = 0.5/( (eps + b1)*(eps + b1) );
+      float wtilde2 = 0.5/( (eps + b2)*(eps + b2) );
+      float w1 = wtilde1/(wtilde1 + wtilde2);
+      float w2 = wtilde2/(wtilde1 + wtilde2);
+
+      //cout<<"w1="<<w1<<", w2="<<w2<<endl;
+      
+      dfdx = -(w1*stn[0]+w2*stn[1]) ;
+	
       uin = u[i];
       utemp = rkstep(uin, dt, 0.5, dfdx);
       u1[i] = utemp;
@@ -86,7 +109,19 @@ int main()
 
       /*2nd RK step*/
     for(i=1; i<imax-1; ++i){
-      dfdx = -0.5*c*(u1[i+1] - u1[i-1])/dx;
+            
+      stn[0] = ( c*(u1[i+1] - u1[i])/dx );
+      stn[1] = ( c*(u1[i] - u1[i-1])/dx );
+      //dfdx = -cdweno2(stn);
+
+       float b1 = (u1[i] - u1[i-1])*(u1[i] - u1[i-1]);
+      float b2 = (u1[i+1] - u1[i])*(u1[i+1] - u1[i]);
+      float wtilde1 = 0.5/( (eps + b1)*(eps + b1) );
+      float wtilde2 = 0.5/( (eps + b2)*(eps + b2) );
+      float w1 = wtilde1/(wtilde1 + wtilde2);
+      float w2 = wtilde2/(wtilde1 + wtilde2);
+
+      dfdx = -(w1*stn[0]+w2*stn[1]) ;
       uin = u[i];
       utemp = rkstep(uin, dt, 1.0, dfdx);
       u2[i] = utemp;
@@ -94,7 +129,7 @@ int main()
 
     swap(u,u2);
 
-    output(iter, u, xg);
+    output(iter, xg, u);
     
     iter +=1;
   }while(iter < itermax);
