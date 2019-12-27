@@ -94,7 +94,7 @@ int main()
   float fin, ftemp;
 
   int istart=2;
-  int iend = imax-1;
+  int iend = imax-2;
   int jstart=2;
   int jend = jmax-2;
   int steps=10;
@@ -128,13 +128,7 @@ int main()
    stn[abs(4*shift-1)] = ( f[i-1+shift][j] - f[i-2+shift][j] )/dx;
    stn[abs(4*shift-2)] = ( f[i+shift][j] - f[i-1+shift][j] )/dx; // space I_[i] 
    stn[abs(4*shift-3)] = ( f[i+1+shift][j] - f[i+shift][j] )/dx;
-
-   //imax-3
-   //stn[abs(4*shift-4)] = ( f[i+2+shift][j] - f[i+1+shift][j] )/dx;
-
-   //imax-2
-   stn[abs(4*shift-4)] =  0.0; //( f[i+2+shift][j] - f[i+1+shift][j] )/dx;
-   
+   stn[abs(4*shift-4)] = ( f[i+2+shift][j] - f[i+1+shift][j] )/dx;
    dfdx = -u[i][j]*weno_recon(stn); //reconstructed derivative
        
      }else{
