@@ -35,9 +35,44 @@ void output(int steps, vector<float> x, vector<float> fx)
   buf.str(string()); //clear buffer
 }
 
+/*File output*/
+void output2D(int steps, int imax, int jmax, 
+              vector< vector<float> > x, 
+              vector< vector<float> > y, 
+              vector< vector<float> > z, 
+              vector< vector<float> > fx)
+{
+  ofstream fp;
+  stringstream buf;
+  string filenumber;
+
+  buf<<setfill('0');
+  filenumber = to_string(steps);
+  buf<<setw(5)<<filenumber;
+
+  string filename="./data2D/f"+buf.str()+".csv";
+  fp.open(filename, ios::out);
+  fp<<"x, y, z, fx\n";
+  for(int i=0; i<imax; ++i){
+    for(int j=0; j<jmax; ++j){
+    fp<<x[i][j]<<", "
+      <<y[i][j]<<", "
+      <<z[i][j]<<", "
+      <<fx[i][j]<<"\n";
+  }
+}
+  fp.close();
+  buf.str(string()); //clear buffer
+}
+
+
 /*sign function*/
 template<typename T>int sign(T val){
   return (T(0) < val) - (val < T(0));
+}
+
+int direction(float val){
+return ( 0.0 < val) - (val < 0.0);
 }
 
 /*Runge-Kutta step function*/
@@ -88,3 +123,40 @@ float weno_recon(float stn[5]) //calculate the right-hand side
   
   return fr;
 }
+
+/*2nd order centered difference construction*/
+float cdweno2(float stn[2]){
+  float dfdx;
+  float gamma1 = 0.5;
+  float gamma2 = 0.5; 
+  
+
+  float p1 = stn[0];
+  float p2 = stn[1];
+  
+
+  float eps = 1.0e-6;
+
+  float b1 = stn[0]*stn[0];
+  float b2 = stn[1]*stn[1];
+  
+
+  float wtilde1 = gamma1/(( eps + b1 )*( eps + b1 ));
+  float wtilde2 = gamma2/(( eps + b2 )*( eps + b2 ));
+  
+
+  float w1 = wtilde1/(wtilde1 + wtilde2);
+  float w2 = wtilde2/(wtilde1 + wtilde2);
+    
+  //reconstructed dfdx
+  dfdx = w1*p1 + w2*p2;
+  return dfdx;
+}
+
+
+float rk1(float u, float dt, float rhs)
+{
+  u = u + dt*rhs;
+  return u;
+}
+
